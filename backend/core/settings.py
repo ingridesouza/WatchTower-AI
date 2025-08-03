@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab  # noqa: F401
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
@@ -20,6 +21,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "django_filters",
     "corsheaders",
     "drf_spectacular",
     "apps.monitor",
@@ -54,7 +56,10 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {"default": env.db("DATABASE_URL", default="postgres://app:app@db:5432/epi")}
+
+DATABASES = {
+    "default": env.db("DATABASE_URL", default="postgres://app:app@db:5432/epi")
+}
 REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
 
 REST_FRAMEWORK = {
@@ -62,11 +67,14 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 SPECTACULAR_SETTINGS = {"TITLE": "WatchTower AI API", "VERSION": "0.1.0"}
 
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"])
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"]
+)
 
 # Configurações de arquivos estáticos
 STATIC_URL = "/static/"
@@ -87,11 +95,11 @@ AWS_STORAGE_BUCKET_NAME = env("MINIO_BUCKET", default="watchtower-evidences")
 AWS_S3_USE_SSL = env.bool("MINIO_USE_SSL", default=False)
 AWS_S3_ADDRESSING_STYLE = "path"
 
-from celery.schedules import crontab  # noqa: F401
-
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=int(env("JWT_ACCESS_LIFETIME", default=3600))),
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        seconds=int(env("JWT_ACCESS_LIFETIME", default=3600))
+    ),
 }
