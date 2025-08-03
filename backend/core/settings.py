@@ -38,6 +38,22 @@ ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 DATABASES = {"default": env.db("DATABASE_URL", default="postgres://app:app@db:5432/epi")}
 REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
 
@@ -52,11 +68,19 @@ SPECTACULAR_SETTINGS = {"TITLE": "WatchTower AI API", "VERSION": "0.1.0"}
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"])
 
+# Configurações de arquivos estáticos
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Configurações de arquivos de mídia
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-AWS_S3_ENDPOINT_URL = f"http://{env('MINIO_ENDPOINT','storage:9000')}"
+AWS_S3_ENDPOINT_URL = f"http://{env('MINIO_ENDPOINT', default='storage:9000')}"
 AWS_ACCESS_KEY_ID = env("MINIO_ACCESS_KEY", default="minio")
 AWS_SECRET_ACCESS_KEY = env("MINIO_SECRET_KEY", default="minio123")
 AWS_STORAGE_BUCKET_NAME = env("MINIO_BUCKET", default="watchtower-evidences")
